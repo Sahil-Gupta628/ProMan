@@ -45,27 +45,22 @@ ProMan is a Django-based web application designed to securely store and manage p
       source venv/bin/activate
       ```
 
-5. Install required dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-6. Apply migrations to set up the database:
+5. Apply migrations to set up the database:
     ```bash
     python manage.py migrate
     ```
 
-7. Create a superuser (optional, for admin access):
+6. Create a superuser (optional, for admin access):
     ```bash
     python manage.py createsuperuser
     ```
 
-8. Run the development server:
+7. Run the development server:
     ```bash
     python manage.py runserver
     ```
 
-9. Open your browser and go to `http://127.0.0.1:8000` to start using the application.
+8. Open your browser and go to `http://127.0.0.1:8000` to start using the application.
 
 ## Usage
 
