@@ -1,0 +1,157 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="{% static 'main.js' %}" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <div class="brand"><a href="#"><i class="fa fa-lock" aria-hidden="true"></i> Password Manager</a></div>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                {% if request.user.is_anonymous %}
+                <li><a href="javascript:;" onclick="displayModal('login-modal');">Login</a></li>
+                <li><a href="javascript:;" onclick="displayModal('signup-modal');">SignUp</a></li>
+                {% else %}
+                <li><a href="javascript:;" onclick="document.getElementById('logout-btn').click();">Logout</a></li>
+                <form hidden action="." method="POST">
+                    {% csrf_token %}
+                    <input type="submit" id="logout-btn" name="logout">
+                </form>
+                <li><a href="javascript:;" onclick="displayModal('add-password-modal');">Add Password</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {% if message.tags == "error" %}
+            <i class="fa fa-exclamation-circle"></i>
+            {% else %}
+            <i class="fa fa-check-circle"></i>
+            {% endif %}
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if code %}
+    <div class="email-confirm">
+        <form action="." method="POST">
+            {% csrf_token %}
+            <h2>Email Confirmation</h2>
+            <p>Please check your email for the code.</p>
+            <input type="text" name="code" placeholder="Enter 6-digit code">
+            <input type="hidden" name="user" value="{{ user.username }}">
+            <button type="submit" name="confirm">Confirm</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="modals-wrapper">
+        <span id="close-modal" title="close"><i class="fa fa-times"></i></span>
+
+        <!-- Login Modal -->
+        <div class="modal" id="login-modal">
+            <form action="." method="POST">
+                {% csrf_token %}
+                <h2>Login</h2>
+                <input type="text" name="username" placeholder="Username">
+                <input type="password" name="password" placeholder="Password">
+                <button type="submit" name="login-form">Login</button>
+            </form>
+        </div>
+
+        <!-- Signup Modal -->
+        <div class="modal" id="signup-modal">
+            <form action="." method="POST">
+                {% csrf_token %}
+                <h2>Sign Up</h2>
+                <input type="text" name="username" placeholder="Username">
+                <input type="email" name="email" placeholder="Email">
+                <input type="password" name="password" placeholder="Password">
+                <input type="password" name="password2" placeholder="Confirm Password">
+                <button type="submit" name="signup-form">Register</button>
+            </form>
+        </div>
+
+        <!-- Add Password Modal -->
+        <div class="modal" id="add-password-modal">
+            <form action="." method="POST">
+                {% csrf_token %}
+                <h2>Add New Password</h2>
+                <input type="text" name="url" placeholder="Website URL">
+                <input type="email" name="email" placeholder="Email">
+                <input type="password" name="password" placeholder="Password">
+                <button type="submit" name="add-password">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Saved Passwords</h2>
+        <div class="cards-wrapper">
+            {% for password in passwords %}
+            <div class="card">
+                <div class="card-header">
+                    <img src="{{ password.logo }}" alt="Website Logo" width="50" height="50">
+                    <h3 class="card-title">{{ password.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <label>Email:</label>
+                        <div class="info-content">
+                            <input type="text" value="{{ password.email }}" readonly>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ password.email }}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <label>Password:</label>
+                        <div class="info-content">
+                            <input type="password" value="{{ password.password }}" readonly>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ password.password }}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn delete-btn" onclick="document.getElementById('delete-btn{{ password.id }}').click();">
+                        <i class="fa fa-trash"></i> Delete
+                    </button>
+                    <form hidden action="." method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="password-id" value="{{ password.id }}">
+                        <input type="submit" id="delete-btn{{ password.id }}" name="delete">
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+
+    <footer>
+        <p><a href="{% url 'home' %}">Project Link</a></p>
+    </footer>
+
+</body>
+
+</html>
